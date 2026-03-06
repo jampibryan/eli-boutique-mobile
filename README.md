@@ -31,7 +31,12 @@ Eli Boutique Mobile es el cliente móvil del sistema de gestión de ventas para 
 - **Dashboard** con estadísticas del día (ventas, clientes, productos, proveedores, estado de caja)
 - **Catálogo de productos** con imágenes, precios, categorías y stock desglosado por talla
 - **Directorio de clientes** con datos de contacto, DNI y género
-- Búsqueda y filtrado en productos (nombre, código, categoría) y clientes (nombre, DNI, correo, teléfono)
+- **Registro de ventas** con detalle de productos, montos, pagos y comprobantes
+- **Registro de compras** con proveedores, condiciones de compra y línea de tiempo
+- **Directorio de proveedores** con datos de contacto y empresa
+- **Control de cajas** con apertura/cierre, movimientos y resumen financiero
+- Búsqueda y filtrado avanzado en todos los módulos
+- Navegación mediante **Drawer lateral** organizado por secciones
 
 ---
 
@@ -309,13 +314,17 @@ El archivo `.aab` estará en `build/app/outputs/bundle/release/app-release.aab`.
 
 ```
 lib/
-├── main.dart                              # Punto de entrada + navegación principal
+├── main.dart                              # Punto de entrada (lanza DashboardScreen)
 ├── config/
 │   └── api_config.dart                    # URL base, puerto, timeout, headers
 ├── models/
 │   ├── dashboard.dart                     # Modelo: estadísticas del negocio
 │   ├── producto.dart                      # Modelos: Producto, Categoría, Género, Talla, Stock
-│   └── cliente.dart                       # Modelos: Cliente, TipoGenero
+│   ├── cliente.dart                       # Modelos: Cliente, TipoGenero
+│   ├── venta.dart                         # Modelos: Venta, DetalleVenta, PagoVenta, Comprobante, etc.
+│   ├── compra.dart                        # Modelos: Compra, DetalleCompra, PagoCompra, etc.
+│   ├── proveedor.dart                     # Modelo: Proveedor
+│   └── caja.dart                          # Modelos: Caja, VentaCaja, ClienteVentaCaja
 ├── services/
 │   └── api_service.dart                   # Cliente HTTP centralizado (solo GET)
 ├── screens/
@@ -323,10 +332,23 @@ lib/
 │   ├── productos/
 │   │   ├── productos_list.dart            # Lista de productos con búsqueda y filtros
 │   │   └── producto_detail.dart           # Detalle de producto con stock por talla
-│   └── clientes/
-│       ├── clientes_list.dart             # Lista de clientes con búsqueda y filtro por género
-│       └── cliente_detail.dart            # Detalle de cliente con info de contacto
+│   ├── clientes/
+│   │   ├── clientes_list.dart             # Lista de clientes con búsqueda y filtro por género
+│   │   └── cliente_detail.dart            # Detalle de cliente con info de contacto
+│   ├── ventas/
+│   │   ├── ventas_list.dart               # Lista de ventas con búsqueda y filtro por estado
+│   │   └── venta_detail.dart              # Detalle de venta con productos, pagos y comprobante
+│   ├── compras/
+│   │   ├── compras_list.dart              # Lista de compras con búsqueda y filtro por estado
+│   │   └── compra_detail.dart             # Detalle de compra con proveedor y condiciones
+│   ├── proveedores/
+│   │   ├── proveedores_list.dart          # Lista de proveedores con búsqueda por empresa/RUC
+│   │   └── proveedor_detail.dart          # Detalle de proveedor con datos de contacto
+│   └── cajas/
+│       ├── cajas_list.dart                # Lista de cajas con balance e ingreso/egreso
+│       └── caja_detail.dart               # Detalle de caja con métricas y ventas del día
 └── widgets/
+    ├── app_drawer.dart                    # Drawer de navegación lateral (menú principal)
     ├── stat_card.dart                     # Tarjeta de estadística reutilizable
     ├── loading_indicator.dart             # Indicador de carga con mensaje
     └── error_display.dart                 # Pantalla de error con botón reintentar
@@ -353,14 +375,37 @@ lib/
 - **Filtro por género**: chips horizontales (Hombre / Mujer)
 - **Detalle**: avatar grande, badge de género, tarjeta de contacto (DNI, correo, teléfono) y tarjeta de datos del registro (nombre, apellido, género)
 
-### Módulos pendientes de implementar
+### 4. Ventas
+- **Lista**: cards con código de venta, cliente, fecha, monto total y badge de estado (Completada/Pendiente/Anulada)
+- **Búsqueda**: filtro en tiempo real por código de venta o nombre de cliente
+- **Filtro por estado**: chips horizontales por estado de la transacción
+- **Detalle**: información del cliente, lista de productos con cantidad y subtotal, resumen de montos (subtotal, descuento, IGV, total), datos de pago y comprobante
 
-| Módulo | Endpoint | Estado |
-|--------|----------|--------|
-| Ventas | `/api/ventas` | 🔲 Pendiente |
-| Compras | `/api/compras` | 🔲 Pendiente |
-| Proveedores | `/api/proveedores` | 🔲 Pendiente |
-| Cajas | `/api/cajas` | 🔲 Pendiente |
+### 5. Compras
+- **Lista**: cards con código de compra, proveedor, fecha, monto total y badge de estado
+- **Búsqueda**: filtro en tiempo real por código de compra o nombre de proveedor
+- **Filtro por estado**: chips horizontales por estado de la transacción
+- **Detalle**: datos del proveedor, línea de tiempo (fecha compra → fecha entrega), lista de productos, condiciones de compra, resumen financiero y comprobante
+
+### 6. Proveedores
+- **Lista**: cards con avatar teal de iniciales, nombre de empresa, contacto, RUC y teléfono
+- **Búsqueda**: filtro en tiempo real por nombre de empresa, contacto o RUC
+- **Detalle**: avatar grande, tarjeta de datos de la empresa (RUC, dirección) y tarjeta de contacto (persona, teléfono, correo)
+
+### 7. Cajas
+- **Lista**: cards con código de caja, fecha, badge de estado (Abierta/Cerrada), ingresos, egresos y balance
+- **Búsqueda**: filtro en tiempo real por código o fecha
+- **Detalle**: métricas principales (monto apertura, cierre, total ventas, cantidad ventas), resumen financiero (ingresos, egresos, balance) y lista de ventas del día con hora y monto
+
+### Navegación
+
+La app utiliza un **Drawer lateral** (menú hamburguesa) organizado en tres secciones:
+
+| Sección | Módulos |
+|---------|---------|
+| 📦 Catálogo | Productos, Clientes |
+| 💰 Transacciones | Ventas, Compras |
+| ⚙️ Gestión | Proveedores, Cajas |
 
 ---
 
@@ -381,12 +426,21 @@ Todos los endpoints devuelven la estructura estándar:
 | GET | `/api/productos` | Lista de todos los productos con stock | Productos |
 | GET | `/api/productos/{id}` | Detalle de un producto específico | Productos |
 | GET | `/api/clientes` | Lista de todos los clientes | Clientes |
+| GET | `/api/clientes/{id}` | Detalle de un cliente específico | Clientes |
+| GET | `/api/ventas` | Lista de todas las ventas | Ventas |
+| GET | `/api/ventas/{id}` | Detalle de una venta específica | Ventas |
+| GET | `/api/compras` | Lista de todas las compras | Compras |
+| GET | `/api/compras/{id}` | Detalle de una compra específica | Compras |
+| GET | `/api/proveedores` | Lista de todos los proveedores | Proveedores |
+| GET | `/api/proveedores/{id}` | Detalle de un proveedor específico | Proveedores |
+| GET | `/api/cajas` | Lista de todas las cajas | Cajas |
+| GET | `/api/cajas/{id}` | Detalle de una caja específica | Cajas |
 
 ---
 
 ## 🖼 Capturas de Pantalla
 
-> _Pendiente: agregar capturas de las pantallas de Dashboard, Productos y Clientes._
+> _Pendiente: agregar capturas de las pantallas de los 7 módulos._
 
 ---
 

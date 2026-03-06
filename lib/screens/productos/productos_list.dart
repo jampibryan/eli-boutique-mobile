@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/producto.dart';
 import '../../services/api_service.dart';
+import '../../widgets/app_drawer.dart';
 import '../../widgets/error_display.dart';
 import '../../widgets/loading_indicator.dart';
 import 'producto_detail.dart';
@@ -81,6 +82,7 @@ class _ProductosListScreenState extends State<ProductosListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Productos'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

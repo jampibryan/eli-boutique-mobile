@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/cliente.dart';
 import '../../services/api_service.dart';
+import '../../widgets/app_drawer.dart';
 import '../../widgets/error_display.dart';
 import '../../widgets/loading_indicator.dart';
 import 'cliente_detail.dart';
@@ -81,6 +82,7 @@ class _ClientesListScreenState extends State<ClientesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Clientes'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -229,7 +231,7 @@ class _ClienteCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => ClienteDetailScreen(cliente: cliente),
+              builder: (_) => ClienteDetailScreen(clienteId: cliente.id),
             ),
           );
         },

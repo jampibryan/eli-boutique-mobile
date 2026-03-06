@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/dashboard.dart';
 import '../services/api_service.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/error_display.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/stat_card.dart';
@@ -56,6 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Eli Boutique'),
         centerTitle: true,
